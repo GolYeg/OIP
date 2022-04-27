@@ -27,17 +27,12 @@ def adc():
     GPIO.output(leds, decimal2binary(get_bin(value)))
     return float(3.3*value/256)
 
-
-
 GPIO.setmode(GPIO.BCM)
 dac = [26, 19, 13, 6, 5, 11, 9, 10]
 leds = [21, 20, 16, 12, 7, 8, 25, 24]
 data = []
 comp = 4
 troyka = 17
-
-
-
 
 GPIO.setup(dac, GPIO.OUT)
 GPIO.setup(comp, GPIO.IN)
@@ -59,12 +54,17 @@ try:
         data.append(voltage)
         voltage = adc()
     finish = time.time()
+    
+    with open('settings.txt', 'w') as stn:
+        stn.write("Время измерения = {:.2f}".format(finish - start))
+        stn.write("Частота дескретизации = {:.2f}".format(len(data)/(finish - start)))
+        stn.write("Период = {:.2f}".format((finish - start)/len(data)))
+        stn.write("Шаг квантования = {:.2f}".format(3.3/256))
+    
     print("Время измерения = {:.2f}".format(finish - start))
     print("Частота дескретизации = {:.2f}".format(len(data)/(finish - start)))
     print("Период = {:.2f}".format((finish - start)/len(data)))
     print("Шаг квантования = {:.2f}".format(3.3/256))
-
-    print(" = {:.2f}".format(finish - start))  
 
     plt.plot(data)
     plt.show()
@@ -74,9 +74,6 @@ try:
     with open("data.txt", "w") as outfile:
         outfile.write("\n".join(data_str))
 
-    
-
-
 except ArithmeticError:
     print ("Arithmetic")
 
@@ -85,4 +82,4 @@ except KeyboardInterrupt:
 finally:
     GPIO.output(dac, 0)
     GPIO.output(troyka, 0)
-    GPIO.cleanup()  
+    GPIO.cleanup()
