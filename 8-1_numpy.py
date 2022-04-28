@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-fig, ax = plt.subplots(dpi = 300)
+fig, ax = plt.subplots(figsize = (20,15), dpi = 150)
 
 # reading from files
 with open("settings1.txt", "r") as s_stream:
