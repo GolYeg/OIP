@@ -25,7 +25,9 @@ def adc():
     value = Guess[0]*128 + Guess[1]*64 + Guess[2]*32 + Guess[3]*16 + Guess[4]*8 + Guess[5]*4 + Guess[6]*2 + Guess[7]
 
     GPIO.output(leds, decimal2binary(get_bin(value)))
-    return float(3.3*value/256)
+    return value
+
+
 
 GPIO.setmode(GPIO.BCM)
 dac = [26, 19, 13, 6, 5, 11, 9, 10]
@@ -33,6 +35,9 @@ leds = [21, 20, 16, 12, 7, 8, 25, 24]
 data = []
 comp = 4
 troyka = 17
+
+
+
 
 GPIO.setup(dac, GPIO.OUT)
 GPIO.setup(comp, GPIO.IN)
@@ -42,29 +47,29 @@ try:
     GPIO.output(troyka, 1)
     start = time.time()
     voltage = adc()
-    while(voltage < 0.8 * 3.3):
-        print("input voltage = {:.2f}".format(voltage))
+    while(voltage < 0.97*256):
+        print("input voltage = {:.1f}".format(voltage))
         data.append(voltage)
         voltage = adc()
         
     GPIO.output(troyka, 0)
 
-    while(voltage > 0.1 * 3.3):
-        print("input voltage = {:.2f}".format(voltage))
+    while(voltage > 0.03 * 256):
+        print("input voltage = {:.1f}".format(voltage))
         data.append(voltage)
         voltage = adc()
     finish = time.time()
-    
-    with open('settings.txt', 'w') as stn:
-        stn.write("Время измерения = {:.2f}".format(finish - start))
-        stn.write("Частота дескретизации = {:.2f}".format(len(data)/(finish - start)))
-        stn.write("Период = {:.2f}".format((finish - start)/len(data)))
-        stn.write("Шаг квантования = {:.2f}".format(3.3/256))
-    
+
+    with open("settings.txt", "w") as stn:
+        stn.write("{:.2f}\n".format(len(data)/(finish - start)))
+        stn.write("{:.2f}".format(1))
+
     print("Время измерения = {:.2f}".format(finish - start))
     print("Частота дескретизации = {:.2f}".format(len(data)/(finish - start)))
     print("Период = {:.2f}".format((finish - start)/len(data)))
     print("Шаг квантования = {:.2f}".format(3.3/256))
+
+    print(" = {:.2f}".format(finish - start))  
 
     plt.plot(data)
     plt.show()
@@ -82,4 +87,4 @@ except KeyboardInterrupt:
 finally:
     GPIO.output(dac, 0)
     GPIO.output(troyka, 0)
-    GPIO.cleanup()
+    GPIO.cleanup()  
